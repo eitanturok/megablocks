@@ -31,8 +31,10 @@ class ExclusiveCumsumOp(torch.autograd.Function):
         return out
 
 
-exclusive_cumsum = ExclusiveCumsumOp.apply
-
+def exclusive_cumsum(parallel_tokens_per_expert: torch.Tensor, dim: int) -> torch.Tensor:
+    output = ExclusiveCumsumOp.apply(parallel_tokens_per_expert, dim)
+    assert output is not None
+    return output
 
 class InclusiveCumsumOp(torch.autograd.Function):
 
@@ -47,5 +49,7 @@ class InclusiveCumsumOp(torch.autograd.Function):
         ops.inclusive_cumsum(x, dim, out)
         return out
 
-
-inclusive_cumsum = InclusiveCumsumOp.apply
+def inclusive_cumsum(parallel_tokens_per_expert: torch.Tensor, dim: int) -> torch.Tensor:
+    output = InclusiveCumsumOp.apply(parallel_tokens_per_expert, dim)
+    assert output is not None
+    return output

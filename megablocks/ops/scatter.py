@@ -1,7 +1,7 @@
 # Copyright 2024 Databricks
 # SPDX-License-Identifier: Apache-2.0
 
-from typing import Any, Optional
+from typing import Any
 
 import torch
 from stk.backend.autocast import custom_bwd, custom_fwd
@@ -68,5 +68,7 @@ def scatter(
     weights: torch.Tensor,
     bins: torch.Tensor,
     top_k: int,
-) -> Optional[torch.Tensor]:
-    return ScatterOp.apply(x, indices, bin_ids, weights, bins, top_k)
+) -> torch.Tensor:
+    output = ScatterOp.apply(x, indices, bin_ids, weights, bins, top_k)
+    assert output is not None
+    return output

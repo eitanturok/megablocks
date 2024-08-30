@@ -4,7 +4,7 @@
 import torch
 
 
-def repeat(x: torch.Tensor, tiling: torch.Size):
+def repeat(x: torch.Tensor, tiling: torch.Size) -> torch.Tensor:
     if all((t == 1 for t in tiling)):
         return x
     return x.repeat(*tiling)

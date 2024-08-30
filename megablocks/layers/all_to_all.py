@@ -1,5 +1,6 @@
 # Copyright 2024 Databricks
 # SPDX-License-Identifier: Apache-2.0
+from typing import Any, Tuple, Optional
 
 import torch
 import torch.distributed as dist
@@ -8,7 +9,7 @@ import torch.distributed as dist
 class AllToAllOp(torch.autograd.Function):
 
     @staticmethod
-    def forward(ctx, x, output_split_sizes, input_split_sizes, group, async_op):
+    def forward(ctx: Any, x: torch.Tensor, output_split_sizes: list[int], input_split_sizes:list[int], group: Optional[dist.ProcessGroup], async_op: bool):
         out = torch.empty((sum(output_split_sizes),) + x.shape[1:], device=x.device, dtype=x.dtype)
 
         ctx.input_shape = x.shape
@@ -26,7 +27,7 @@ class AllToAllOp(torch.autograd.Function):
         return out, handle
 
     @staticmethod
-    def backward(ctx, grad, _):
+    def backward(ctx: Any, grad: torch.Tensor, _):
         if ctx.needs_input_grad[0]:
             out = torch.empty(
                 ctx.input_shape,
@@ -44,11 +45,14 @@ class AllToAllOp(torch.autograd.Function):
         return None, None, None, None, None
 
 
-def all_to_all(x, output_split_sizes, input_split_sizes, group, async_op=False):
-    return AllToAllOp.apply(
+
+def all_to_all(x: torch.Tensor, output_split_sizes: list[int], input_split_sizes:list[int], group: Optional[dist.ProcessGroup], async_op: bool=False) -> Tuple[torch.Tensor, ...]:
+    output = AllToAllOp.apply(
         x,
         output_split_sizes,
         input_split_sizes,
         group,
         async_op,
     )
+    assert output is not None
+    return output
